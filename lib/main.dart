@@ -77,7 +77,7 @@ class MyApp extends StatelessWidget {
                 })
               ],
             ),
-        '/home': (context) => CatalogPage()
+        '/home': (context) => const CatalogPage()
       },
       title: 'Pergam',
       debugShowCheckedModeBanner: false,
@@ -189,15 +189,6 @@ class _CatalogPageState extends State<CatalogPage> {
             icon: const Icon(Icons.sort),
           ),
           IconButton(
-            onPressed: () {
-              showSearch(
-                context: context,
-                delegate: SearchWidget([], context),
-              );
-            },
-            icon: const Icon(Icons.search),
-          ),
-          IconButton(
             onPressed: () => Navigator.pushNamed(context, '/profile'),
             icon: const Icon(Icons.person),
           ),
@@ -213,17 +204,37 @@ class _CatalogPageState extends State<CatalogPage> {
             return const Center(child: CircularProgressIndicator());
           }
           final finalItems = snap.requireData;
-          return GridView.builder(
-            padding: const EdgeInsets.all(8),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 3 / 4,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10),
-            itemBuilder: (ctx, i) => ItemWidget(
-              item: finalItems.docs[i].data(),
-            ),
-            itemCount: finalItems.size,
+          return Column(
+            children: [
+              ElevatedButton.icon(
+                label: const Text('Search'),
+                onPressed: () {
+                  showSearch(
+                    context: context,
+                    delegate: SearchWidget(
+                      finalItems.docs.map<Item>((doc) => doc.data()).toList(),
+                      context,
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.search),
+              ),
+              Expanded(
+                child: GridView.builder(
+                  padding: const EdgeInsets.all(8),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 3 / 4,
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                  ),
+                  itemBuilder: (ctx, i) => ItemWidget(
+                    item: finalItems.docs[i].data(),
+                  ),
+                  itemCount: finalItems.size,
+                ),
+              ),
+            ],
           );
         },
       ),
@@ -325,8 +336,17 @@ class SearchWidget extends SearchDelegate<Item?> {
       );
 
   @override
-  Widget buildResults(BuildContext context) => ListView.builder(
-        itemBuilder: (ctx, i) => ItemWidget(item: tempItems[i]),
+  Widget buildResults(BuildContext context) => GridView.builder(
+        padding: const EdgeInsets.all(8),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          childAspectRatio: 3 / 4,
+          crossAxisSpacing: 10,
+          mainAxisSpacing: 10,
+        ),
+        itemBuilder: (ctx, i) => ItemWidget(
+          item: tempItems[i],
+        ),
         itemCount: tempItems.length,
       );
 
@@ -337,8 +357,17 @@ class SearchWidget extends SearchDelegate<Item?> {
           (item) => item.name.toLowerCase().contains(query.toLowerCase()),
         )
         .toList();
-    return ListView.builder(
-      itemBuilder: (ctx, i) => ItemWidget(item: tempItems[i]),
+    return GridView.builder(
+      padding: const EdgeInsets.all(8),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        childAspectRatio: 3 / 4,
+        crossAxisSpacing: 10,
+        mainAxisSpacing: 10,
+      ),
+      itemBuilder: (ctx, i) => ItemWidget(
+        item: tempItems[i],
+      ),
       itemCount: tempItems.length,
     );
   }
